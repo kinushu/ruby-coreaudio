@@ -263,6 +263,26 @@ ca_get_device_actual_sample_rate(VALUE self)
 }
 
 static VALUE
+ca_set_default_output_device(AudioDeviceID devID)
+{
+    AudioObjectPropertyAddress address = PropertyAddress;
+    UInt32 size;
+    OSStatus status;
+
+    address.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+    address.mScope    = kAudioObjectPropertyScopeGlobal;
+    address.mElement  = kAudioObjectPropertyElementMaster;
+
+    status = AudioObjectSetPropertyData(kAudioObjectSystemObject, &address, 0, NULL, sizeof(devID), &devID);
+    if (status != noErr) {
+      rb_raise(rb_eArgError,
+               "coreaudio: set default output deveice failed: %d", status);
+    }
+
+    return UINT2NUM(0);
+}
+
+static VALUE
 ca_device_initialize(VALUE self, VALUE devIdVal, VALUE options)
 {
     AudioDeviceID devID = (AudioDeviceID)NUM2LONG(devIdVal);
@@ -1094,6 +1114,8 @@ ca_in_buffer_data_read(VALUE self, VALUE num)
 void
 Init_coreaudio_ext(void)
 {
+    puts("Init ruby-coreaudio\n");
+
     sym_iv_devid = rb_intern("@devid");
     sym_iv_name = rb_intern("@name");
     sym_iv_available_sample_rate = rb_intern("@available_sample_rate");
@@ -1116,6 +1138,7 @@ Init_coreaudio_ext(void)
     rb_define_method(rb_cAudioDevice, "output_loop", ca_device_create_out_loop_proc, 1);
     rb_define_method(rb_cAudioDevice, "output_buffer", ca_device_create_out_buffer_proc, 1);
     rb_define_method(rb_cAudioDevice, "input_buffer", ca_device_create_in_buffer_proc, 1);
+    rb_define_method(rb_cAudioDevice, "set_default_output_device", ca_set_default_output_device, 0);
     rb_define_attr(rb_cAudioDevice, "devid", 1, 0);
     rb_define_attr(rb_cAudioDevice, "name", 1, 0);
     rb_define_attr(rb_cAudioDevice, "available_sample_rate", 1, 0);

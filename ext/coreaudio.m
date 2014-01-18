@@ -263,8 +263,9 @@ ca_get_device_actual_sample_rate(VALUE self)
 }
 
 static VALUE
-ca_set_default_output_device(AudioDeviceID devID)
+ca_set_default_output_device(VALUE self)
 {
+    AudioDeviceID devID = NUM2UINT(rb_ivar_get(self, sym_iv_devid));    
     AudioObjectPropertyAddress address = PropertyAddress;
     UInt32 size;
     OSStatus status;
@@ -279,7 +280,7 @@ ca_set_default_output_device(AudioDeviceID devID)
                "coreaudio: set default output deveice failed: %d", status);
     }
 
-    return UINT2NUM(0);
+    return Qtrue;
 }
 
 static VALUE

@@ -1123,8 +1123,6 @@ ca_in_buffer_data_read(VALUE self, VALUE num)
 void
 Init_coreaudio_ext(void)
 {
-    puts("Init ruby-coreaudio\n");
-
     sym_iv_devid = rb_intern("@devid");
     sym_iv_name = rb_intern("@name");
     sym_iv_available_sample_rate = rb_intern("@available_sample_rate");

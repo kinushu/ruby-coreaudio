@@ -1,7 +1,7 @@
 require "coreaudio"
 
 # 入力文字列を名称に含むオーディオデバイスをデフォルト出力として設定
-def set_interface name
+def set_interface(name)
 	if !name
 		puts 'please enter audio output interface name.'
 		return -1
@@ -11,12 +11,12 @@ def set_interface name
 
 	tgt = devs.find{|dev| dev.name.index(name)}
 	if !tgt
-		p 'no match interface' 
+		p 'no match interface #{tgt.name}' 
 		return -1
 	end
 
-	tgt.set_default_output_device
+	CoreAudio::set_default_output_device(tgt)
 	p "select default output audio interface #{tgt.name}"
 end
 
-set_interface ARGV[0]
+set_interface(ARGV[0])

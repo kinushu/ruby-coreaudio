@@ -262,26 +262,6 @@ ca_get_device_actual_sample_rate(VALUE self)
     return DBL2NUM((double)rate);
 }
 
-static VALUE
-ca_set_default_output_device(VALUE self)
-{
-    AudioDeviceID devID = NUM2UINT(rb_ivar_get(self, sym_iv_devid));    
-    AudioObjectPropertyAddress address = PropertyAddress;
-    UInt32 size;
-    OSStatus status;
-
-    address.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
-    address.mScope    = kAudioObjectPropertyScopeGlobal;
-    address.mElement  = kAudioObjectPropertyElementMaster;
-
-    status = AudioObjectSetPropertyData(kAudioObjectSystemObject, &address, 0, NULL, sizeof(devID), &devID);
-    if (status != noErr) {
-      rb_raise(rb_eArgError,
-               "coreaudio: set default output deveice failed: %d", status);
-    }
-
-    return Qtrue;
-}
 
 static VALUE
 ca_device_initialize(VALUE self, VALUE devIdVal, VALUE options)
@@ -435,6 +415,34 @@ ca_default_output_device(int argc, VALUE *argv, VALUE mod)
       rb_raise(rb_eArgError, "coreaudio: get default output device failed: %d", status);
 
     return ca_device_new(devID, options);
+}
+
+/*
+ * Document-method: CoreAudio.set_default_output_device
+ * call-seq:
+ *   CoreAudio.set_default_output_device(audiodevice)
+ *
+ * Set system default audio output device as CoreAudio::AudioDevice object.
+ */
+static VALUE
+ca_set_default_output_device(VALUE self, VALUE device)
+{
+    AudioDeviceID devID = NUM2UINT(rb_ivar_get(device, sym_iv_devid));    
+    AudioObjectPropertyAddress address = PropertyAddress;
+    UInt32 size;
+    OSStatus status;
+
+    address.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+    address.mScope    = kAudioObjectPropertyScopeGlobal;
+    address.mElement  = kAudioObjectPropertyElementMaster;
+
+    status = AudioObjectSetPropertyData(kAudioObjectSystemObject, &address, 0, NULL, sizeof(devID), &devID);
+    if (status != noErr) {
+      rb_raise(rb_eArgError,
+               "coreaudio: set default output deveice failed: %d", status);
+    }
+
+    return Qtrue;
 }
 
 /*
@@ -1139,7 +1147,6 @@ Init_coreaudio_ext(void)
     rb_define_method(rb_cAudioDevice, "output_loop", ca_device_create_out_loop_proc, 1);
     rb_define_method(rb_cAudioDevice, "output_buffer", ca_device_create_out_buffer_proc, 1);
     rb_define_method(rb_cAudioDevice, "input_buffer", ca_device_create_in_buffer_proc, 1);
-    rb_define_method(rb_cAudioDevice, "set_default_output_device", ca_set_default_output_device, 0);
     rb_define_attr(rb_cAudioDevice, "devid", 1, 0);
     rb_define_attr(rb_cAudioDevice, "name", 1, 0);
     rb_define_attr(rb_cAudioDevice, "available_sample_rate", 1, 0);
@@ -1154,6 +1161,7 @@ Init_coreaudio_ext(void)
     rb_define_singleton_method(rb_mCoreAudio, "devices", ca_devices, -1);
     rb_define_singleton_method(rb_mCoreAudio, "default_input_device", ca_default_input_device, -1);
     rb_define_singleton_method(rb_mCoreAudio, "default_output_device", ca_default_output_device, -1);
+    rb_define_singleton_method(rb_mCoreAudio, "set_default_output_device", ca_set_default_output_device, 1);
 
     rb_define_method(rb_cOutLoop, "[]=", ca_out_loop_data_assign, 2);
     rb_define_method(rb_cOutLoop, "start", ca_out_loop_data_start, 0);

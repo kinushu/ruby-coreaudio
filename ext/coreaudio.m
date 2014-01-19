@@ -262,7 +262,6 @@ ca_get_device_actual_sample_rate(VALUE self)
     return DBL2NUM((double)rate);
 }
 
-
 static VALUE
 ca_device_initialize(VALUE self, VALUE devIdVal, VALUE options)
 {
@@ -420,7 +419,7 @@ ca_default_output_device(int argc, VALUE *argv, VALUE mod)
 /*
  * Document-method: CoreAudio.set_default_output_device
  * call-seq:
- *   CoreAudio.set_default_output_device(audiodevice)
+ *   CoreAudio.set_default_output_device(audio_device)
  *
  * Set system default audio output device as CoreAudio::AudioDevice object.
  */
